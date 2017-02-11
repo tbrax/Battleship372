@@ -1,0 +1,9 @@
+Entry 1, Friday, February 10, 2017:
+
+	The group decided on a web-based, pvp battleship game. See user
+stories for details on features. We've talked a bit about what languages,
+softwares, etc. will be used but we remain flexible. Currently, we are thinking
+an Apache web server working with a Python application. Graphics, then, could
+be handled simply through html/javascript. A database may or may not be
+required. Priority is going to be assigned first to the web infrastructure and
+a base for the game -- likely ship placement and board visibility.

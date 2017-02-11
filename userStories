@@ -1,0 +1,42 @@
+User stories, in descending order of priority with estimated difficulty:
+
+	(5)As a player, I want to access the game via a web browser so that I 
+	can play on a variety of platforms and specific devices.
+
+	(15)As a player, I want to be able to place my ships
+
+	(10)As a player, I want to be able to select my target square
+
+	(30)As a player, I want to be able to play against other players
+
+	(10)As a player, I want to be able to see mine and my opponent's hits
+	and misses on my board(s)
+
+	(1)As a player, I want to be notified when either player has lost
+	all of their ships, so I can know the outcome of the game and end it
+
+	(5)As a player, I want to be notified when a single ship belonging to
+	either player is sunk
+
+	(15)As a player, I want to land on a main menu from which I can access
+	features, start a game and to which I may return when a game ends.
+
+	(10)As a player, I want players to have a limited amount of time to
+	take a turn, to prevent games being deadlocked by AFK players, 
+	linkdead players, etc.
+
+	(5)As a player, I want to be able to forfeit a game at any time.
+
+	(5)As a player, I want to be able to start a game with a specific 
+	player, specified by their current username in the game.
+
+	(10)As a player, I want to be able to start a game with a random other
+	player, chosen by the game
+
+	(10)As a player, I want to be able to view my current win/loss totals
+
+	(10)As a player, I want to be able to view the win/loss scores of
+	other users, and compare my totals to theirs.
+
+	(20)As a player, I want to be able to communicate somehow with my
+	opponent.
