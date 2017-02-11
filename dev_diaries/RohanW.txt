@@ -1,0 +1,5 @@
+Rohan Weeden
+
+Wednesday 2/8/2017
+
+	Today we created user stories for our battleship game and ranked them with story points, using the story for placing ships as our starting point. From the user stories we decided that our game is going to be running on some sort of web server, using html and javascript for the user interface, and possibly some sort of database on the server.
