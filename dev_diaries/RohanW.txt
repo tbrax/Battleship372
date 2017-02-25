@@ -1,5 +1,18 @@
 Rohan Weeden
 
 Wednesday 2/8/2017
+1 HR
 
 	Today we created user stories for our battleship game and ranked them with story points, using the story for placing ships as our starting point. From the user stories we decided that our game is going to be running on some sort of web server, using html and javascript for the user interface, and possibly some sort of database on the server.
+
+Monday 2/20/2017
+1 HR
+Story Points: +5
+
+	Today we worked on getting something visible up on the user interface and basic representation of our boards. We found out that JavaScript supports classes and objects very similar to languages like c++ and Java, so we used that for our board. We also got the board to render it's self and started working on letting the user place ships. Currently, the user can click on a single square on his own board to fill that square with a ship which is rendered as a green square instead of a blue one.
+
+Friday 2/24/2017
+1.5 HR
+Story Points: +21
+
+	Today Trace and I met outside of class to work for a few hours. We completed several user stories, including letting the user choose a target square and letting the user know when the game is over. We got farther on other user stories like placing ships which are no longer single squares, and some basic feature which could be considered part of a menu. The game now lets the user first place 5 ships of varying length and then after all ships are placed, it lets the user click on the opponents board and displays whether it was a hit or not. We also added an "ai" which randomly chooses a square on the player's board each time the player clicks.
