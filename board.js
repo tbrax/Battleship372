@@ -1,5 +1,5 @@
 
-
+const canvasScale = 2;
 
 var canvas = document.getElementById("board");
 var context = canvas.getContext("2d");
@@ -22,9 +22,10 @@ function startGame(){
 	//alert("Game Started");		/*debug stuff*/
 
 	canvas.addEventListener("click", mouseClickHandler, false);
+	canvas.addEventListener("mousemove", mouseMoveHandler, false);
 
-	playerBoard = new Board(10,10);
-	opponentBoard = new Board(10,10);
+	playerBoard = new Board(0, 0, 10,10);
+	opponentBoard = new Board(0, 110, 10,10);
 
 	//playerBoard.placeShip(3,7);
 	//playerBoard.placeShip(4,7);
@@ -32,8 +33,8 @@ function startGame(){
 	opponentBoard.placeShip(5,1,1,true);
 	opponentBoard.placeShip(4,2,1,true);
 
-	playerBoard.draw(0,0,2);
-	opponentBoard.draw(0, 110, 2);
+	playerBoard.draw(0,0,canvasScale);
+	opponentBoard.draw(0, 110, canvasScale);
 	shipsLeftToPlace = shipSizes.length;
 	shipSizeCounter = 0;
 	shipIsVertical = true;
@@ -50,13 +51,22 @@ function randomEnemyFire()
         row = Math.floor(Math.random() * 10);
        col = Math.floor(Math.random() * 10);
     }
-    playerBoard.draw(0, 0, 2);
+    playerBoard.draw(0, 0, canvasScale);
+
 }
 
-function mouseClickHandler(e) {
-	//alert(e.pageX / 20 + "," + e.pageY / 20);
+function getGridPosition(x, y, board) {
 
-	//First find the correct x,y with element offsets
+	var row = Math.floor((y - board.locY*canvasScale) / 20);
+	var col = Math.floor((x - board.locX*canvasScale) / 20);
+
+	//alert(x + ", " + y + "\n" + board.locX + ", " + board.locY);
+
+	return [row, col];
+}
+
+function getOffsets() {
+
 	var offsetX = 0;
 	var offsetY = 0;
 	var element = canvas;
@@ -66,21 +76,46 @@ function mouseClickHandler(e) {
 			offsetY += element.offsetTop;
 		} while(element = element.offsetParent);
 	}
+
+	return [offsetX, offsetY];
+}
+
+function mouseMoveHandler(e) {
+
+	var offsets = getOffsets();
+	var offsetX = offsets[0];
+	var offsetY = offsets[1];
+
 	var x = e.pageX - offsetX;
 	var y = e.pageY - offsetY;
-	var row;
-	var col;
+
+	playerBoard.draw(0, 0, canvasScale);
+	context.strokeRect(x, y, 10*canvasScale, 10*canvasScale*shipSizes[shipSizeCounter]);
+
+}
+
+function mouseClickHandler(e) {
+	//alert(e.pageX / 20 + "," + e.pageY / 20);
+
+	//First find the correct x,y with element offsets
+	var offsets = getOffsets();
+	var offsetX = offsets[0];
+	var offsetY = offsets[1];
+
+	var x = e.pageX - offsetX;
+	var y = e.pageY - offsetY;
 	if (gameMode == 0)
 	{
-	    row = Math.floor(y / 20);
-	    col = Math.floor(x / 20);
+	    var gridCoords = getGridPosition(x, y, playerBoard);
+	    var row = gridCoords[0];
+	    var col = gridCoords[1];
 	    if (row < 10 && col < 10) {
 	        if (playerBoard.placeShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
 	        {
 	            shipsLeftToPlace--;
 	            shipSizeCounter++;
 	            //context.clearRect(0, 0, 200, 200);
-	            playerBoard.draw(0, 0, 2);
+	            playerBoard.draw(0, 0, canvasScale);
 	        }
 	       
 	    }
@@ -93,13 +128,14 @@ function mouseClickHandler(e) {
 	}
 	else
 	{
-	    row = Math.floor(y/ 20);
-	    col = Math.floor((x-220) / 20);
-	    //alert(row + "," + col);
+	    var gridCoords = getGridPosition(x, y, opponentBoard);
+	    var row = gridCoords[0];
+	    var col = gridCoords[1];
+	    alert("attacking" + row + ", " + col);
 	    if (row < 10 && col < 10) {
 	        opponentBoard.attackLocation(row, col);
 	        //context.clearRect(220, 0, 400, 200);
-	        opponentBoard.draw(0, 110, 2);
+	        opponentBoard.draw(0, 110, canvasScale);
 	        randomEnemyFire();
 	    }
 	}
@@ -111,15 +147,18 @@ function mouseClickHandler(e) {
 
 class Board {
 	
-	constructor(rows, cols){
+	constructor(locX, locY, rows, cols){
 	    this.grid = new Array(rows);
 	    this.hitGrid = new Array(rows);
+	    this.locX = locX;
+	    this.locY = locY;
 		this.rows = rows;
 		this.cols = cols;
-		this.totalShipSquares =0;
+		this.totalShipSquares = 0;
 		for(var i = 0; i < rows; ++i){
 		    this.grid[i] = new Array(cols)
 		    this.hitGrid[i] = new Array(cols)
+ 
 		}
 	}
 	
