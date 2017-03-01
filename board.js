@@ -4,7 +4,7 @@ var canvas = document.getElementById("board");
 var context = canvas.getContext("2d");
 var playerBoard;
 var opponentBoard;
-var gameMode = 0;
+var gameMode;
 var shipsLeftToPlace;
 const shipSizes = [5,4,3,3,2];
 var shipSizeCounter;
@@ -34,6 +34,7 @@ function startGame(){
 	shipsLeftToPlace = shipSizes.length;
 	shipSizeCounter = 0;
 	shipIsVertical = true;
+	gameMode = 0;
 }
 
 function randomEnemyFire()
@@ -48,6 +49,11 @@ function randomEnemyFire()
        col = Math.floor(Math.random() * 10);
     }
     playerBoard.draw(canvasScale);
+
+    if (playerBoard.checkHasLost()) {
+        alert("You have lost!");
+        startGame();
+    }
 
 }
 
@@ -142,8 +148,15 @@ function mouseClickHandler(e) {
 
 	    if (row < 10 && col < 10) {
 	        opponentBoard.attackLocation(row, col);
+	        if (opponentBoard.checkHasLost()) {
+	            alert("You have won!");
+	            startGame();
+	        }
+	        else {
+	            randomEnemyFire();
+	        }
 	        opponentBoard.draw(canvasScale);
-	        randomEnemyFire();
+	        
 	    }
 	}
 
@@ -198,25 +211,38 @@ class Board {
         }
     }
 
+    placeVert(row,col,size)
+    {
+        for (var rowi = 0; rowi < size; ++rowi) {
+            this.grid[rowi + row][col] = 1;
+            this.totalShipSquares++;
+        }
+    }
+    placeHorz(row,col,size)
+    {
+        for (var coli = 0; coli < size; ++coli) {
+            this.grid[row][coli + col] = 1;
+            this.totalShipSquares++;
+        }
+    }
     placeShip(row, col, size,isVert)
     {
         if (isVert)
         {
-            for (var rowi = 0; rowi < size; ++rowi) {
-                this.grid[rowi + row][col] = 1;
-                this.totalShipSquares++;
-            }
-           
+            this.placeVert(row,col,size);
         }
         else
         {
-            for (var coli = 0; coli < size; ++coli){
-                this.grid[row][coli + col] = 1;
-                this.totalShipSquares++;
-            }
+            this.placeHorz(row, col, size);
         }
 	}
-
+    
+    checkHasLost() {
+        if (this.totalShipSquares == 0) {
+            return true;
+        }
+        return false;
+    }
     attackLocation(row, col)
     {
         if (this.hitGrid[row][col] != null)
@@ -227,11 +253,7 @@ class Board {
 	    {
 	        this.hitGrid[row][col] = 1;
 	        this.totalShipSquares--;
-	        if (this.totalShipSquares==0)
-	        {
-	            alert("A player has won!");
-	            startGame();
-	        }
+	        
 	    }
 	    else
 	    {
