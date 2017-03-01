@@ -1,9 +1,7 @@
 
 const canvasScale = 2;
-
 var canvas = document.getElementById("board");
 var context = canvas.getContext("2d");
-
 var playerBoard;
 var opponentBoard;
 var gameMode = 0;
@@ -25,16 +23,14 @@ function startGame(){
 	canvas.addEventListener("mousemove", mouseMoveHandler, false);
 
 	playerBoard = new Board(0, 0, 10,10);
-	opponentBoard = new Board(0, 110, 10,10);
+	opponentBoard = new Board(110, 0, 10,10);
 
-	//playerBoard.placeShip(3,7);
-	//playerBoard.placeShip(4,7);
+	opponentBoard.placeShip(5,1,2,true);
+	opponentBoard.placeShip(6, 3, 3, true);
+	opponentBoard.placeShip(2, 3, 4, false);
 
-	opponentBoard.placeShip(5,1,1,true);
-	opponentBoard.placeShip(4,2,1,true);
-
-	playerBoard.draw(0,0,canvasScale);
-	opponentBoard.draw(0, 110, canvasScale);
+	playerBoard.draw(canvasScale);
+	opponentBoard.draw(canvasScale);
 	shipsLeftToPlace = shipSizes.length;
 	shipSizeCounter = 0;
 	shipIsVertical = true;
@@ -51,7 +47,7 @@ function randomEnemyFire()
         row = Math.floor(Math.random() * 10);
        col = Math.floor(Math.random() * 10);
     }
-    playerBoard.draw(0, 0, canvasScale);
+    playerBoard.draw(canvasScale);
 
 }
 
@@ -59,8 +55,6 @@ function getGridPosition(x, y, board) {
 
 	var row = Math.floor((y - board.locY*canvasScale) / 20);
 	var col = Math.floor((x - board.locX*canvasScale) / 20);
-
-	//alert(x + ", " + y + "\n" + board.locX + ", " + board.locY);
 
 	return [row, col];
 }
@@ -76,7 +70,6 @@ function getOffsets() {
 			offsetY += element.offsetTop;
 		} while(element = element.offsetParent);
 	}
-
 	return [offsetX, offsetY];
 }
 
@@ -88,14 +81,28 @@ function mouseMoveHandler(e) {
 
 	var x = e.pageX - offsetX;
 	var y = e.pageY - offsetY;
-
-	playerBoard.draw(0, 0, canvasScale);
-	context.strokeRect(x, y, 10*canvasScale, 10*canvasScale*shipSizes[shipSizeCounter]);
+	var gridPos = getGridPosition(x, y, playerBoard);
+	var row = gridPos[0];
+	var col = gridPos[1];
+	if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
+	{
+	    playerBoard.draw(canvasScale);
+	    context.strokeStyle = "#00ff00";
+	    if (shipIsVertical)
+	    {
+	        context.strokeRect(col * 10 * canvasScale, row * 10 * canvasScale, 10 * canvasScale, 10 * canvasScale * shipSizes[shipSizeCounter]);
+	    }
+	    else
+	    {
+	        context.strokeRect(col * 10 * canvasScale, row * 10 * canvasScale, 10 * canvasScale * shipSizes[shipSizeCounter], 10 * canvasScale);
+	    }
+	    
+	}
+	
 
 }
 
 function mouseClickHandler(e) {
-	//alert(e.pageX / 20 + "," + e.pageY / 20);
 
 	//First find the correct x,y with element offsets
 	var offsets = getOffsets();
@@ -110,12 +117,13 @@ function mouseClickHandler(e) {
 	    var row = gridCoords[0];
 	    var col = gridCoords[1];
 	    if (row < 10 && col < 10) {
-	        if (playerBoard.placeShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
+	        if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
 	        {
+
+	            playerBoard.placeShip(row, col, shipSizes[shipSizeCounter], shipIsVertical)
 	            shipsLeftToPlace--;
 	            shipSizeCounter++;
-	            //context.clearRect(0, 0, 200, 200);
-	            playerBoard.draw(0, 0, canvasScale);
+	            playerBoard.draw(canvasScale);
 	        }
 	       
 	    }
@@ -131,17 +139,13 @@ function mouseClickHandler(e) {
 	    var gridCoords = getGridPosition(x, y, opponentBoard);
 	    var row = gridCoords[0];
 	    var col = gridCoords[1];
-	    alert("attacking" + row + ", " + col);
+
 	    if (row < 10 && col < 10) {
 	        opponentBoard.attackLocation(row, col);
-	        //context.clearRect(220, 0, 400, 200);
-	        opponentBoard.draw(0, 110, canvasScale);
+	        opponentBoard.draw(canvasScale);
 	        randomEnemyFire();
 	    }
 	}
-	
-
-	//alert(row + "," + col);
 
 }
 
@@ -161,41 +165,56 @@ class Board {
  
 		}
 	}
-	
+    canPlaceVert(row,col,size)
+    {
+        for (var rowi = 0; rowi < size; ++rowi) {
+            if (rowi + row >= this.rows || this.grid[rowi + row][col] != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+    canPlaceHorz(row,col,size)
+    {
+        for (var coli = 0; coli < size; ++coli) {
+            if (coli + col >= this.cols || this.grid[row][coli + col] != null) {
+
+                return false;
+            }
+        }
+        return true;
+    }
+    canPlaceShip(row,col,size,isVert)
+    {
+        if (row >= this.rows || col >= this.cols)
+        {
+            return false;
+        }
+        if (isVert) {
+            return this.canPlaceVert(row,col,size);
+        }
+        else {
+            return this.canPlaceHorz(row, col, size);
+        }
+    }
+
     placeShip(row, col, size,isVert)
     {
         if (isVert)
         {
             for (var rowi = 0; rowi < size; ++rowi) {
-                if (rowi >= this.rows || this.grid[rowi + row][col] != null) {
-                    return false;
-                }
-
-            }
-
-            for (var rowi = 0; rowi < size; ++rowi) {
                 this.grid[rowi + row][col] = 1;
                 this.totalShipSquares++;
             }
-            return true;
+           
         }
         else
         {
-            for (var coli = 0; coli < size; ++coli) {
-                if (coli >= this.cols || this.grid[row][coli + col] != null) {
-                    return false;
-                }
-
-            }
-
-            for (var coli = 0; coli < size; ++coli) {
+            for (var coli = 0; coli < size; ++coli){
                 this.grid[row][coli + col] = 1;
                 this.totalShipSquares++;
             }
-            return true;
         }
-        
-		
 	}
 
     attackLocation(row, col)
@@ -222,8 +241,8 @@ class Board {
 	    
 	}
 
-	draw(y, x, scale) {
-	    context.clearRect(x*scale,y*scale,this.rows*10,this.cols*10);
+	draw(scale) {
+	    context.clearRect(this.locX*scale,this.locY*scale,this.rows*10,this.cols*10);
 		for(var i = 0; i < this.rows; ++i) {
 		    for (var c = 0; c < this.cols; ++c) {
 		        if (this.hitGrid[i][c] == 1) {
@@ -240,12 +259,11 @@ class Board {
 				}
 				else {
 					context.fillStyle = "#659bf2";
-				}
-
-		        
-				context.fillRect((x * scale) + (c * (10 * scale)), (y * scale) + (i * (10 * scale)), (10 * scale), (10 * scale));
+				}        
+				context.fillRect((this.locX * scale) + (c * (10 * scale)), (this.locY * scale) + (i * (10 * scale)), (10 * scale), (10 * scale));
 				context.fillStyle = "#000000";
-				context.strokeRect((x * scale) + (c * (10 * scale)), (y * scale) + (i * (10 * scale)), (10 * scale), (10 * scale));
+				context.strokeStyle = "#000000";
+				context.strokeRect((this.locX * scale) + (c * (10 * scale)), (this.locY * scale) + (i * (10 * scale)), (10 * scale), (10 * scale));
 			}
 		}
 	}
