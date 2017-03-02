@@ -7,3 +7,41 @@ an Apache web server working with a Python application. Graphics, then, could
 be handled simply through html/javascript. A database may or may not be
 required. Priority is going to be assigned first to the web infrastructure and
 a base for the game -- likely ship placement and board visibility.
+
+
+-The group worked for about 2 hours on Friday, Feb. 24 however I was out with a migraine.
+The group completed rudimentary ship placement, as well as player and opponent attacking.
+(total of 36 difficulty points)
+
+-We worked for most of class (~45 minutes) on Monday, Feb. 27. We performed some refactoring 
+and began to work toward perfecting the drawing of the ship placement cursor. 
+
+-We worked for about 1.5 hours on Wednesday, March 1. We completed the ship placement cursor,
+ridding it of several bugs and unpleasant graphical issues. We
+expanded the end of the game to detect which player won, and then performed a large amount of refactoring.
+
+
+
+It becomes obvious that the work of the last two weeks began with getting the functionality
+we needed (hence the large number of difficulty points completed at the beginning), then
+perfecting and refactoring for a long time afterwords. For example, we technically had ship
+placement after the first session, however we had to perfect the graphics of the cursor, 
+ship rotation, etc. to really call that part "done". I think this makes a case for making
+sure we break user stories up into more smaller user stories when we notice issues like that.
+On the other hand, this does make the last two weeks look like a fairly nice sprint -- we got
+working code that fulfilled a strong set of user stories, then rafactored and perfected it.
+The only issue becomes exactly when "enough is enough" for the perfection process. I think
+that could be solved with, as I mentioned earlier, finer "resolution" user stories. Overall,
+I could see the proect evolving into two-week sprints covering 25-35 points per sprint.
+
+Pair programming proved, for me personally anyway, to be a very double-edged sword. On the one
+hand, it seemed each one of our tests were more likely to be successful and we had fewer large
+bugs to deal with because of the multiple eyes watching for mistakes, and the multiple minds
+thinking on the same problems. However, it did feel like a burden at times, when for example
+two different people had two drastically different ideas of what could be wrong. I think this
+was especially an issue for us because we had to spend time working as three people.
+
+Our large amount of refactoring toward the end did open us up to fulfil more user stories and
+perfect some of our issues with the existing code -- in fact, some of the refactoring was spurred
+by us realizing that something would be way easier if put in its own function, for example. Making
+sure to think about refactoring definitely turned out to be an advantage.
