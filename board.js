@@ -13,7 +13,10 @@ var shipIsVertical;
 window.addEventListener('keydown', this.keyPressHandler, false);
 
 function keyPressHandler(e) {
-    shipIsVertical = !shipIsVertical;
+	//82 - 'r'
+	if(e.keyCode == 82) {
+		shipIsVertical = !shipIsVertical;
+	}
 }
 
 function startGame() {
@@ -23,13 +26,8 @@ function startGame() {
 
 	playerBoard = new Board(0, 0, 10,10);
 	opponentBoard = new Board(110, 0, 10,10);
-	//opponentBoard.hideShips();
+	opponentBoard.hideShips();
 
-	/*
-	opponentBoard.placeShip(5,1,2,true);
-	opponentBoard.placeShip(6, 3, 3, true);
-	opponentBoard.placeShip(2, 3, 4, false);
-	*/
 	randomPlaceShips(opponentBoard);
 
 	playerBoard.draw(canvasScale);
@@ -43,6 +41,7 @@ function startGame() {
 }
 
 function randomPlaceShips(board) {
+	
 	for(var c = 0; c < shipSizes.length; c++) {
 		var row, col, rot;
 		while(true) {
@@ -63,20 +62,26 @@ function randomEnemyFire()
     do {
 		row = Math.floor(Math.random() * 10);
 		col = Math.floor(Math.random() * 10);
-    }while(!playerBoard.attackLocation(row, col))
+    } while(!playerBoard.attackLocation(row, col))
+		
     playerBoard.draw(canvasScale);
 
     if (playerBoard.checkHasLost()) {
         alert("You have lost!");
         startGame();
     }
-
 }
 
-function getGridPosition(x, y, board) {
+function getGridPosition(e, board, scale) {
+	
+	var offsets = getOffsets();
+	return getGridPositionFromCoords(e.pageX - offsets[0], e.pageY - offsets[1], board, scale);
+}
 
-	var row = Math.floor((y - board.locY*canvasScale) / 20);
-	var col = Math.floor((x - board.locX*canvasScale) / 20);
+function getGridPositionFromCoords(x, y, board, scale) {
+
+	var row = Math.floor((y - board.locY*scale) / 20);
+	var col = Math.floor((x - board.locX*scale) / 20);
 
 	return [row, col];
 }
@@ -97,45 +102,38 @@ function getOffsets() {
 
 function mouseMoveHandler(e) {
 
-	var offsets = getOffsets();
-	var offsetX = offsets[0];
-	var offsetY = offsets[1];
-
-	var x = e.pageX - offsetX;
-	var y = e.pageY - offsetY;
-	var gridPos = getGridPosition(x, y, playerBoard);
+	var gridPos = getGridPosition(e, playerBoard, canvasScale);
 	var row = gridPos[0];
 	var col = gridPos[1];
-	if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
-	{
-	    playerBoard.draw(canvasScale);
-	    context.strokeStyle = "#00ff00";
-	    if (shipIsVertical)
-	    {
-	        context.strokeRect(col * 10 * canvasScale, row * 10 * canvasScale, 10 * canvasScale, 10 * canvasScale * shipSizes[shipSizeCounter]);
-	    }
-	    else
-	    {
-	        context.strokeRect(col * 10 * canvasScale, row * 10 * canvasScale, 10 * canvasScale * shipSizes[shipSizeCounter], 10 * canvasScale);
-	    }
-	    
+	if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical)) {
+		playerBoard.draw(canvasScale);
+		drawShipOutline(row, col, canvasScale);
 	}
-	
+}
 
+function drawShipOutline(row, col, scale) {
+	
+	context.strokeStyle = "#00ff00";
+	if (shipIsVertical)
+	{
+		context.strokeRect(col * 10 * scale, row * 10 * scale, 10 * scale, 10 * scale * shipSizes[shipSizeCounter]);
+	}
+	else
+	{
+		context.strokeRect(col * 10 * scale, row * 10 * scale, 10 * scale * shipSizes[shipSizeCounter], 10 * scale);
+	}
 }
 
 function mouseClickHandler(e) {
 
 	//First find the correct x,y with element offsets
 	var offsets = getOffsets();
-	var offsetX = offsets[0];
-	var offsetY = offsets[1];
 
-	var x = e.pageX - offsetX;
-	var y = e.pageY - offsetY;
+	var x = e.pageX - offsets[0];
+	var y = e.pageY - offsets[1];
 	if (gameMode == 0)
 	{
-	    var gridCoords = getGridPosition(x, y, playerBoard);
+	    var gridCoords = getGridPositionFromCoords(x, y, playerBoard, canvasScale);
 	    var row = gridCoords[0];
 	    var col = gridCoords[1];
 	    if (row < 10 && col < 10) {
@@ -154,11 +152,10 @@ function mouseClickHandler(e) {
 	    {
 	        gameMode = 1;
 	    }
-	    
 	}
 	else
 	{
-	    var gridCoords = getGridPosition(x, y, opponentBoard);
+	    var gridCoords = getGridPositionFromCoords(x, y, opponentBoard, canvasScale);
 	    var row = gridCoords[0];
 	    var col = gridCoords[1];
 
@@ -172,10 +169,8 @@ function mouseClickHandler(e) {
 	            randomEnemyFire();
 	        }
 	        opponentBoard.draw(canvasScale);
-	        
 	    }
 	}
-
 }
 
 class Board {
