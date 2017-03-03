@@ -1,7 +1,7 @@
 
-const canvasScale = 2;
 var canvas = document.getElementById("board");
 var context = canvas.getContext("2d");
+var canvasScale = canvas.height / 100;
 var playerBoard;
 var opponentBoard;
 var gameMode;
@@ -59,17 +59,17 @@ function randomPlaceShips(board) {
 function randomEnemyFire()
 {
 	var row, col;
-    do {
-		row = Math.floor(Math.random() * 10);
-		col = Math.floor(Math.random() * 10);
-    } while(!playerBoard.attackLocation(row, col))
+	do {
+		row = Math.floor(Math.random() * playerBoard.rows);
+		col = Math.floor(Math.random() * playerBoard.cols);
+	} while(!playerBoard.attackLocation(row, col))
 		
-    playerBoard.draw(canvasScale);
+	playerBoard.draw(canvasScale);
 
-    if (playerBoard.checkHasLost()) {
-        alert("You have lost!");
-        startGame();
-    }
+	if (playerBoard.checkHasLost()) {
+		alert("You have lost!");
+		startGame();
+	}
 }
 
 function getGridPosition(e, board, scale) {
@@ -80,8 +80,8 @@ function getGridPosition(e, board, scale) {
 
 function getGridPositionFromCoords(x, y, board, scale) {
 
-	var row = Math.floor((y - board.locY*scale) / 20);
-	var col = Math.floor((x - board.locX*scale) / 20);
+	var row = Math.floor((y - board.locY*scale) / (10 * scale));
+	var col = Math.floor((x - board.locX*scale) / (10 * scale));
 
 	return [row, col];
 }
@@ -133,60 +133,57 @@ function mouseClickHandler(e) {
 	var y = e.pageY - offsets[1];
 	if (gameMode == 0)
 	{
-	    var gridCoords = getGridPositionFromCoords(x, y, playerBoard, canvasScale);
-	    var row = gridCoords[0];
-	    var col = gridCoords[1];
-	    if (row < 10 && col < 10) {
-	        if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical))
-	        {
+		var gridCoords = getGridPositionFromCoords(x, y, playerBoard, canvasScale);
+		var row = gridCoords[0];
+		var col = gridCoords[1];
+		if (row < 10 && col < 10) {
+			if (playerBoard.canPlaceShip(row, col, shipSizes[shipSizeCounter], shipIsVertical)) {
+				playerBoard.placeShip(row, col, shipSizes[shipSizeCounter], shipIsVertical)
+				shipsLeftToPlace--;
+				shipSizeCounter++;
+				playerBoard.draw(canvasScale);
+			}
+		}
 
-	            playerBoard.placeShip(row, col, shipSizes[shipSizeCounter], shipIsVertical)
-	            shipsLeftToPlace--;
-	            shipSizeCounter++;
-	            playerBoard.draw(canvasScale);
-	        }
-	       
-	    }
-
-	    if (shipsLeftToPlace ==0)
-	    {
-	        gameMode = 1;
-	    }
+		if (shipsLeftToPlace ==0)
+		{
+			gameMode = 1;
+		}
 	}
 	else
 	{
-	    var gridCoords = getGridPositionFromCoords(x, y, opponentBoard, canvasScale);
-	    var row = gridCoords[0];
-	    var col = gridCoords[1];
+		var gridCoords = getGridPositionFromCoords(x, y, opponentBoard, canvasScale);
+		var row = gridCoords[0];
+		var col = gridCoords[1];
 
-	    if (row < 10 && col < 10) {
-	        opponentBoard.attackLocation(row, col);
-	        if (opponentBoard.checkHasLost()) {
-	            alert("You have won!");
-	            startGame();
-	        }
-	        else {
-	            randomEnemyFire();
-	        }
-	        opponentBoard.draw(canvasScale);
-	    }
+		if (row < 10 && col < 10) {
+			opponentBoard.attackLocation(row, col);
+			if (opponentBoard.checkHasLost()) {
+				alert("You have won!");
+				startGame();
+			}
+			else {
+				window.setTimeout(randomEnemyFire, 500);
+			}
+			opponentBoard.draw(canvasScale);
+		}
 	}
 }
 
 class Board {
 	
 	constructor(locX, locY, rows, cols){
-	    this.grid = new Array(rows);
-	    this.hitGrid = new Array(rows);
-	    this.locX = locX;
-	    this.locY = locY;
+		this.grid = new Array(rows);
+		this.hitGrid = new Array(rows);
+		this.locX = locX;
+		this.locY = locY;
 		this.rows = rows;
 		this.cols = cols;
 		this.totalShipSquares = 0;
 		this.renderShips = true;
 		for(var i = 0; i < rows; ++i){
-		    this.grid[i] = new Array(cols)
-		    this.hitGrid[i] = new Array(cols)
+			this.grid[i] = new Array(cols)
+			this.hitGrid[i] = new Array(cols)
  
 		}
 	}
@@ -199,104 +196,104 @@ class Board {
 		this.renderShips = true;
 	}
 	
-    canPlaceVert(row,col,size)
-    {
-        for (var rowi = 0; rowi < size; ++rowi) {
-            if (rowi + row >= this.rows || this.grid[rowi + row][col] != null) {
-                return false;
-            }
-        }
-        return true;
-    }
-    canPlaceHorz(row,col,size)
-    {
-        for (var coli = 0; coli < size; ++coli) {
-            if (coli + col >= this.cols || this.grid[row][coli + col] != null) {
-
-                return false;
-            }
-        }
-        return true;
-    }
-    canPlaceShip(row,col,size,isVert)
-    {
-        if (row >= this.rows || col >= this.cols)
-        {
-            return false;
-        }
-        if (isVert) {
-            return this.canPlaceVert(row,col,size);
-        }
-        else {
-            return this.canPlaceHorz(row, col, size);
-        }
-    }
-
-    placeVert(row,col,size)
-    {
-        for (var rowi = 0; rowi < size; ++rowi) {
-            this.grid[rowi + row][col] = 1;
-            this.totalShipSquares++;
-        }
-    }
-	
-    placeHorz(row,col,size)
-    {
-        for (var coli = 0; coli < size; ++coli) {
-            this.grid[row][coli + col] = 1;
-            this.totalShipSquares++;
-        }
-    }
-	
-    placeShip(row, col, size,isVert)
-    {
-        if (isVert)
-        {
-            this.placeVert(row,col,size);
-        }
-        else
-        {
-            this.placeHorz(row, col, size);
-        }
+	canPlaceVert(row,col,size)
+	{
+		for (var rowi = 0; rowi < size; ++rowi) {
+			if (rowi + row >= this.rows || this.grid[rowi + row][col] != null) {
+				return false;
+			}
+		}
+		return true;
 	}
-    
-    checkHasLost() {
-        if (this.totalShipSquares == 0) {
-            return true;
-        }
-        return false;
-    }
+	canPlaceHorz(row,col,size)
+	{
+		for (var coli = 0; coli < size; ++coli) {
+			if (coli + col >= this.cols || this.grid[row][coli + col] != null) {
+
+				return false;
+			}
+		}
+		return true;
+	}
+	canPlaceShip(row,col,size,isVert)
+	{
+		if (row >= this.rows || col >= this.cols)
+		{
+			return false;
+		}
+		if (isVert) {
+			return this.canPlaceVert(row,col,size);
+		}
+		else {
+			return this.canPlaceHorz(row, col, size);
+		}
+	}
+
+	placeVert(row,col,size)
+	{
+		for (var rowi = 0; rowi < size; ++rowi) {
+			this.grid[rowi + row][col] = 1;
+			this.totalShipSquares++;
+		}
+	}
 	
-    attackLocation(row, col)
-    {
-        if (this.hitGrid[row][col] != null)
-        {
-            return false;
-        }
-	    else if (this.grid[row][col] != null)
-	    {
-	        this.hitGrid[row][col] = 1;
-	        this.totalShipSquares--;
-	        
-	    }
-	    else
-	    {
-	        this.hitGrid[row][col] = 0;
-	    }
-	    return true;
-	    
+	placeHorz(row,col,size)
+	{
+		for (var coli = 0; coli < size; ++coli) {
+			this.grid[row][coli + col] = 1;
+			this.totalShipSquares++;
+		}
+	}
+	
+	placeShip(row, col, size,isVert)
+	{
+		if (isVert)
+		{
+			this.placeVert(row,col,size);
+		}
+		else
+		{
+			this.placeHorz(row, col, size);
+		}
+	}
+	
+	checkHasLost() {
+		if (this.totalShipSquares == 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	attackLocation(row, col)
+	{
+		if (this.hitGrid[row][col] != null)
+		{
+			return false;
+		}
+		else if (this.grid[row][col] != null)
+		{
+			this.hitGrid[row][col] = 1;
+			this.totalShipSquares--;
+			
+		}
+		else
+		{
+			this.hitGrid[row][col] = 0;
+		}
+		return true;
+		
 	}
 
 	draw(scale) {
-	    context.clearRect(this.locX*scale,this.locY*scale,this.rows*10,this.cols*10);
+		context.clearRect(this.locX*scale,this.locY*scale,this.rows*10,this.cols*10);
 		for(var i = 0; i < this.rows; ++i) {
-		    for (var c = 0; c < this.cols; ++c) {
-		        if (this.hitGrid[i][c] == 1) {
-		            context.fillStyle = "#ff0000";
-		        }
-		        else if (this.hitGrid[i][c] == 0) {
-		            context.fillStyle = "#ffffff";
-		        }
+			for (var c = 0; c < this.cols; ++c) {
+				if (this.hitGrid[i][c] == 1) {
+					context.fillStyle = "#ff0000";
+				}
+				else if (this.hitGrid[i][c] == 0) {
+					context.fillStyle = "#ffffff";
+				}
 				else if(this.grid[i][c] != null && this.renderShips) {
 					context.fillStyle = "#00ff00";
 				}
