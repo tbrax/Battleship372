@@ -12,7 +12,23 @@ Story Points: +5
 	Today we worked on getting something visible up on the user interface and basic representation of our boards. We found out that JavaScript supports classes and objects very similar to languages like c++ and Java, so we used that for our board. We also got the board to render it's self and started working on letting the user place ships. Currently, the user can click on a single square on his own board to fill that square with a ship which is rendered as a green square instead of a blue one.
 
 Friday 2/24/2017
-1.5 HR
+1 HR 30 MIN
 Story Points: +21
 
 	Today Trace and I met outside of class to work for a few hours. We completed several user stories, including letting the user choose a target square and letting the user know when the game is over. We got farther on other user stories like placing ships which are no longer single squares, and some basic feature which could be considered part of a menu. The game now lets the user first place 5 ships of varying length and then after all ships are placed, it lets the user click on the opponents board and displays whether it was a hit or not. We also added an "ai" which randomly chooses a square on the player's board each time the player clicks.
+
+Monday 2/27/2017
+45 MIN
+Story Points: +0
+
+	Today we got a few minutes in class to work on the project so we started trying to get a ship outline to appear on the board before placing a ship. At this point it was very clear that the little bits of rendering code that we had scattered around our file were starting to make it a bit more difficult to add new and different rendering code. Essentially the code we had did a minimal amount of drawing only on the parts of the screen where the graphics were actually changing, so when the user places ships on the board, only the player's board gets cleared and redrawn, everything else stays the same. This meant that adding an outline that showed future ship placements was leaving a trail of outlines whenever the mouse was moved over a section of the canvas that was not the players board. I felt like here, the philosophy of doing tasks in the simplest way possible left us with a lot of very messy code that made it difficult to add more stuff, or at least the code we were adding was also becoming increasingly messy and scattered.
+
+Wednesday 3/1/2017
+1 HR 20 MIN
+Story Points: +0
+
+	The first thing we did was fix the ship placement overlay so it snaps to the grid and only renders when the mouse is at a location where the current ship could be placed. We also made it render both vertically and horizontally to accurately display ship orientation. The largest amount of work, however, was put into refactoring messy code and adding a few unit tests for the Board class. I really like the idea of keeping functions as small as possible (like around 5-7 lines) as far as readability is concerned. I have seen some code that was done like this before and it really is extremely easy to read. The downside is that it can be hard to find where certain things are implemented, and it can be easy to get lost if you try to follow it down too far if each function calls more than one other function. But it does a really good job of abstracting away the implementation and making it clear what the program is doing. For our project Test Driven Development was kindof hard to do because we were using javascript and most of our code was contained inside of global functions, and a large part of the code was devoted to rendering. We did have one testable class, but most of the member functions in the class were designed to operate through side effects so it was not really possible to test those functions.
+
+
+
+
