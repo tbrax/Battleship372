@@ -16,38 +16,54 @@ function keyPressHandler(e) {
     shipIsVertical = !shipIsVertical;
 }
 
-function startGame(){
-	//alert("Game Started");		/*debug stuff*/
-
+function startGame() {
+	
 	canvas.addEventListener("click", mouseClickHandler, false);
 	canvas.addEventListener("mousemove", mouseMoveHandler, false);
 
 	playerBoard = new Board(0, 0, 10,10);
 	opponentBoard = new Board(110, 0, 10,10);
+	//opponentBoard.hideShips();
 
+	/*
 	opponentBoard.placeShip(5,1,2,true);
 	opponentBoard.placeShip(6, 3, 3, true);
 	opponentBoard.placeShip(2, 3, 4, false);
+	*/
+	randomPlaceShips(opponentBoard);
 
 	playerBoard.draw(canvasScale);
 	opponentBoard.draw(canvasScale);
+	
+	//Reset globals to defaults
 	shipsLeftToPlace = shipSizes.length;
 	shipSizeCounter = 0;
 	shipIsVertical = true;
 	gameMode = 0;
 }
 
+function randomPlaceShips(board) {
+	for(var c = 0; c < shipSizes.length; c++) {
+		var row, col, rot;
+		while(true) {
+			row = Math.floor(Math.random() * 10);
+			col = Math.floor(Math.random() * 10);
+			rot = Math.random() <= 0.5;
+			if(board.canPlaceShip(row, col, shipSizes[c], rot)) {
+				board.placeShip(row, col, shipSizes[c], rot)
+				break;
+			}
+		}
+	}
+}
+
 function randomEnemyFire()
 {
-   
-    var row = Math.floor(Math.random() * 10);
-    var col = Math.floor(Math.random() * 10);
-
-    while(!playerBoard.attackLocation(row, col))
-    {
-        row = Math.floor(Math.random() * 10);
-       col = Math.floor(Math.random() * 10);
-    }
+	var row, col;
+    do {
+		row = Math.floor(Math.random() * 10);
+		col = Math.floor(Math.random() * 10);
+    }while(!playerBoard.attackLocation(row, col))
     playerBoard.draw(canvasScale);
 
     if (playerBoard.checkHasLost()) {
@@ -172,12 +188,22 @@ class Board {
 		this.rows = rows;
 		this.cols = cols;
 		this.totalShipSquares = 0;
+		this.renderShips = true;
 		for(var i = 0; i < rows; ++i){
 		    this.grid[i] = new Array(cols)
 		    this.hitGrid[i] = new Array(cols)
  
 		}
 	}
+	
+	hideShips() {
+		this.renderShips = false;
+	}
+	
+	showShips() {
+		this.renderShips = true;
+	}
+	
     canPlaceVert(row,col,size)
     {
         for (var rowi = 0; rowi < size; ++rowi) {
@@ -218,6 +244,7 @@ class Board {
             this.totalShipSquares++;
         }
     }
+	
     placeHorz(row,col,size)
     {
         for (var coli = 0; coli < size; ++coli) {
@@ -225,6 +252,7 @@ class Board {
             this.totalShipSquares++;
         }
     }
+	
     placeShip(row, col, size,isVert)
     {
         if (isVert)
@@ -243,6 +271,7 @@ class Board {
         }
         return false;
     }
+	
     attackLocation(row, col)
     {
         if (this.hitGrid[row][col] != null)
@@ -273,7 +302,7 @@ class Board {
 		        else if (this.hitGrid[i][c] == 0) {
 		            context.fillStyle = "#ffffff";
 		        }
-				else if(this.grid[i][c] != null) {
+				else if(this.grid[i][c] != null && this.renderShips) {
 					context.fillStyle = "#00ff00";
 				}
 				else if((c + (i % 2)) % 2 == 0) {
